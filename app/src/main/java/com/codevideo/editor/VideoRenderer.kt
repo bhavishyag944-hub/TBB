@@ -109,7 +109,7 @@ class VideoRenderer(private val context: Context) {
                         .setBackgroundFrameAnchor(nx, ny)
                         .setOverlayFrameAnchor(0f, 0f)
                         .build()
-                    val hidden = shown.buildUpon().setAlphaScale(0f).build()
+                    val hidden = OverlaySettings.Builder().setBackgroundFrameAnchor(nx, ny).setOverlayFrameAnchor(0f, 0f).setAlphaScale(0f).build()
 
                     overlays.add(TimedTextOverlay(span, startUs, endUs, shown, hidden))
                 }

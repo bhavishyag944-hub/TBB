@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; background: #080808; color: #eee; font-family: sans-serif; }
+  body { display: flex; flex-direction: column; padding: 8px; gap: 8px; }
+  .row { display: flex; gap: 8px; }
+  button { flex: 1; padding: 12px; border: 0; border-radius: 8px; font-size: 15px; font-weight: bold; }
+  #pick { background: #2a2a2a; color: #fff; }
+  #run { background: #D4AF37; color: #080808; }
+  textarea { flex: 1; min-height: 0; width: 100%; background: #141414; color: #9fe870; border: 1px solid #333; border-radius: 8px; padding: 10px; font-family: monospace; font-size: 14px; resize: none; }
+  #status { font-size: 13px; color: #D4AF37; min-height: 18px; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <button id="pick">1. वीडियो चुनें</button>
+    <button id="run">2. चलाएँ और एक्सपोर्ट करें</button>
+  </div>
+  <textarea id="code" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off">video.trim(2, 12);
+video.speed(1.5);
+video.text("Hello", { x: 50, y: 80, start: 1, end: 5 });</textarea>
+  <div id="status">पहले वीडियो चुनें, फिर कोड चलाएँ।</div>
+
+<script>
+  var edits = {};
+
+  var video = {
+    trim: function (start, end) {
+      edits.trim = { start: start };
+      if (end !== undefined) edits.trim.end = end;
+    },
+    speed: function (factor) {
+      edits.speed = factor;
+    },
+    text: function (text, opts) {
+      opts = opts || {};
+      edits.texts = edits.texts || [];
+      edits.texts.push({
+        text: String(text),
+        x: opts.x, y: opts.y,
+        start: opts.start, end: opts.end,
+        size: opts.size
+      });
+    }
+  };
+
+  function onStatus(msg) {
+    document.getElementById("status").textContent = msg;
+  }
+
+  document.getElementById("pick").onclick = function () {
+    Android.pickVideo();
+  };
+
+  document.getElementById("run").onclick = function () {
+    edits = {};
+    var code = document.getElementById("code").value
+      .replace(/[“”]/g, '"')
+      .replace(/[‘’]/g, "'");
+    try {
+      new Function("video", code)(video);
+    } catch (e) {
+      onStatus("कोड में गड़बड़ी: " + e.message);
+      return;
+    }
+    Android.runEdits(JSON.stringify(edits));
+  };
+</script>
+</body>
+</html>
